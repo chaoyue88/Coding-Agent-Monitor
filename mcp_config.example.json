@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agent-monitor": {
+      "command": "python3",
+      "args": ["/path/to/skills/agent-monitor/scripts/mcp_server.py"],
+      "env": {}
+    }
+  }
+}

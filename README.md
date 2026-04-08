@@ -11,6 +11,7 @@ Real-time monitoring for AI coding agent sessions — Claude Code, Codex, Aider,
 - **Web dashboard** — single-page frontend polling a lightweight Python HTTP server on `:9090`
 - **Session history** — completed sessions remain visible for 7 days via JSONL cache
 - **Structured log viewer** — parses Claude Code JSONL conversation files; dashboard "MD" button renders messages with tool calls, code blocks, and rich text
+- **MCP server** — exposes all capabilities as MCP tools so other AI agents can query session status, logs, and control the dashboard
 
 ## Quick Start
 
@@ -95,6 +96,42 @@ collect_status.sh  →  format_report.sh     CLI pipeline, no server needed
 ─────────────────────────────────────────────────
 Summary  total: 3  running: 2  done: 1  failed: 0
 ```
+
+## MCP Server
+
+Exposes agent-monitor as an MCP tool server so other AI agents (Claude Code, etc.) can query it directly.
+
+### Install dependency
+
+```bash
+pip install mcp
+```
+
+### Register in Claude Code
+
+Add to `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "agent-monitor": {
+      "command": "python3",
+      "args": ["/absolute/path/to/skills/agent-monitor/scripts/mcp_server.py"]
+    }
+  }
+}
+```
+
+### Available MCP tools
+
+| Tool | Description |
+|---|---|
+| `list_sessions()` | All agent sessions with status, duration, git stats |
+| `get_report(format?)` | Formatted report — `markdown` / `terminal` / `json` |
+| `get_session_logs(session_id)` | Structured conversation logs for a session |
+| `dashboard(action)` | `start` / `stop` / `restart` / `status` the web UI |
+
+The MCP server routes through the live dashboard API when it's running (richer data including token counts), and falls back to shell scripts when it's not.
 
 ## License
 
